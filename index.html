@@ -238,6 +238,11 @@
 
 <script>
 
+/* STREET VIEW SERVICE */
+
+const streetViewService =
+  new google.maps.StreetViewService();
+
 let map;
 let playerMarker;
 let realMarker;
@@ -257,74 +262,81 @@ const resultBox =
 const distanceText =
   document.getElementById("distance-text");
 
-/* LIMITES AUTOUR DE LA FRANCE
-   (large mais impossible de perdre la France)
-*/
+/* LIMITES AUTOUR DE LA FRANCE */
 
 const franceBounds = L.latLngBounds(
   L.latLng(41.0, -8.5),
   L.latLng(51.8, 10.0)
 );
 
-const franceBounds = {
-(franceBounds.north - franceBounds.south)
-+ franceBounds.south;
+/* GÉNÉRATION ALÉATOIRE */
 
-const lng =
-Math.random() *
-(franceBounds.east - franceBounds.west)
-+ franceBounds.west;
+async function randomLocation(){
 
-const location = {
-lat: lat,
-lng: lng
-};
+  return new Promise((resolve) => {
 
-// Vérifie Street View
+    function tryLocation(){
 
-streetViewService.getPanorama({
+      const lat =
+        Math.random() *
+        (51.2 - 42.2)
+        + 42.2;
 
-location: location,
+      const lng =
+        Math.random() *
+        (8.5 - (-5.5))
+        + (-5.5);
 
-radius: 10000,
+      const location = {
+        lat: lat,
+        lng: lng
+      };
 
-source: google.maps.StreetViewSource.OUTDOOR
+      streetViewService.getPanorama({
 
-}, (data, status) => {
+        location: location,
 
-if(
-status === 'OK' &&
-data &&
-data.location &&
-data.location.latLng
-){
+        radius: 10000,
 
-resolve({
-lat: data.location.latLng.lat(),
-lng: data.location.latLng.lng()
-});
+        source:
+          google.maps.StreetViewSource.OUTDOOR
 
-} else {
+      }, (data, status) => {
 
-// Retente automatiquement
-tryLocation();
+        if(
+          status === 'OK' &&
+          data &&
+          data.location &&
+          data.location.latLng
+        ){
+
+          resolve({
+
+            lat:
+              data.location.latLng.lat(),
+
+            lng:
+              data.location.latLng.lng()
+
+          });
+
+        } else {
+
+          tryLocation();
+
+        }
+
+      });
+
+    }
+
+    tryLocation();
+
+  });
 
 }
 
-});
-
-}
-
-tryLocation();
-
-});
-
-}
-
-
-/* AVANT VALIDATION :
-   PETITE -> GRANDE
-*/
+/* MAP SIZE */
 
 function toggleMap(){
 
@@ -395,6 +407,8 @@ function recenterFrance(){
 
 }
 
+/* START ROUND */
+
 async function startRound(){
 
   resultBox.style.display = "none";
@@ -409,7 +423,10 @@ async function startRound(){
 
   recenterFrance();
 
-  const location = await randomLocation();
+  /* IMPORTANT */
+
+  const location =
+    await randomLocation();
 
   realPosition =
     new google.maps.LatLng(
@@ -424,17 +441,23 @@ async function startRound(){
       ),
       {
         position: realPosition,
+
         pov:{
           heading:34,
           pitch:10
         },
+
         zoom:1,
+
         addressControl:false,
+
         fullscreenControl:false
       }
     );
 
 }
+
+/* VALIDATE */
 
 function validateGuess(){
 
@@ -462,7 +485,7 @@ function validateGuess(){
   const distanceKm =
     (distance / 1000).toFixed(2);
 
-  /* FULLSCREEN APRÈS VALIDATION */
+  /* FULLSCREEN */
 
   mapContainer.classList.add(
     "fullscreen"
@@ -472,19 +495,24 @@ function validateGuess(){
     map.invalidateSize();
   }, 500);
 
-  // BON POINT
+  /* BON POINT EN VERT */
 
   realMarker = L.circleMarker([
-  realPosition.lat(),
-  realPosition.lng()
-], {
-  radius: 10,
-  color: "green",
-  fillColor: "green",
-  fillOpacity: 1
-}).addTo(map);
+    realPosition.lat(),
+    realPosition.lng()
+  ], {
 
-  // LIGNE
+    radius:10,
+
+    color:"green",
+
+    fillColor:"green",
+
+    fillOpacity:1
+
+  }).addTo(map);
+
+  /* LIGNE */
 
   line = L.polyline([
     [
@@ -497,7 +525,7 @@ function validateGuess(){
     ]
   ]).addTo(map);
 
-  // ZOOM
+  /* ZOOM */
 
   map.fitBounds(
     line.getBounds(),
@@ -506,19 +534,19 @@ function validateGuess(){
     }
   );
 
-  // DISTANCE
+  /* DISTANCE */
 
   distanceText.innerHTML =
     "Bravo : " +
     distanceKm +
     " km";
 
-  // RESULT BOX
-
   resultBox.style.display =
     "block";
 
 }
+
+/* NEXT ROUND */
 
 function nextRound(){
 
@@ -545,3 +573,6 @@ window.onload = initGame;
 
 </body>
 </html>
+
+
+
