@@ -54,7 +54,7 @@
 
     }
 
-    /* GRANDE MAP (PAS FULLSCREEN) */
+    /* GRANDE MAP */
 
     #map-container.expanded{
 
@@ -202,7 +202,7 @@
 <div id="result-box">
 
   <div id="distance-text">
-    0 km
+    Bravo : 0 km
   </div>
 
   <button id="continue-btn" onclick="nextRound()">
@@ -257,6 +257,15 @@ const resultBox =
 const distanceText =
   document.getElementById("distance-text");
 
+/* LIMITES AUTOUR DE LA FRANCE
+   (large mais impossible de perdre la France)
+*/
+
+const franceBounds = L.latLngBounds(
+  L.latLng(41.0, -8.5),
+  L.latLng(51.8, 10.0)
+);
+
 const franceLocations = [
 
   { lat:48.8566, lng:2.3522 },
@@ -308,9 +317,17 @@ function toggleMap(){
 
 function initGame(){
 
-  map = L.map('map').setView(
+  map = L.map('map', {
+
+    maxBounds: franceBounds,
+
+    maxBoundsViscosity: 1.0,
+
+    minZoom: 5
+
+  }).setView(
     [46.603354, 1.888334],
-    5
+    6
   );
 
   L.tileLayer(
@@ -338,6 +355,15 @@ function initGame(){
 
 }
 
+function recenterFrance(){
+
+  map.setView(
+    [46.603354, 1.888334],
+    6
+  );
+
+}
+
 function startRound(){
 
   resultBox.style.display = "none";
@@ -349,6 +375,8 @@ function startRound(){
   mapContainer.classList.remove(
     "expanded"
   );
+
+  recenterFrance();
 
   const location = randomLocation();
 
@@ -403,8 +431,7 @@ function validateGuess(){
   const distanceKm =
     (distance / 1000).toFixed(2);
 
-  /* FULLSCREEN UNIQUEMENT
-     APRÈS VALIDATION */
+  /* FULLSCREEN APRÈS VALIDATION */
 
   mapContainer.classList.add(
     "fullscreen"
@@ -446,7 +473,9 @@ function validateGuess(){
   // DISTANCE
 
   distanceText.innerHTML =
-    distanceKm + " km";
+    "Bravo : " +
+    distanceKm +
+    " km";
 
   // RESULT BOX
 
@@ -468,10 +497,7 @@ function nextRound(){
 
   selectedLatLng = null;
 
-  map.setView(
-    [46.603354,1.888334],
-    5
-  );
+  recenterFrance();
 
   startRound();
 
