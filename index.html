@@ -266,30 +266,61 @@ const franceBounds = L.latLngBounds(
   L.latLng(51.8, 10.0)
 );
 
-const franceLocations = [
+const franceBounds = {
+(franceBounds.north - franceBounds.south)
++ franceBounds.south;
 
-  { lat:48.8566, lng:2.3522 },
-  { lat:43.2965, lng:5.3698 },
-  { lat:45.7640, lng:4.8357 },
-  { lat:50.6292, lng:3.0573 },
-  { lat:48.5734, lng:7.7521 },
-  { lat:43.6047, lng:1.4442 },
-  { lat:44.8378, lng:-0.5792 },
-  { lat:47.2184, lng:-1.5536 },
-  { lat:43.7102, lng:7.2620 },
-  { lat:49.2583, lng:4.0317 }
+const lng =
+Math.random() *
+(franceBounds.east - franceBounds.west)
++ franceBounds.west;
 
-];
+const location = {
+lat: lat,
+lng: lng
+};
 
-function randomLocation(){
+// Vérifie Street View
 
-  return franceLocations[
-    Math.floor(
-      Math.random() * franceLocations.length
-    )
-  ];
+streetViewService.getPanorama({
+
+location: location,
+
+radius: 10000,
+
+source: google.maps.StreetViewSource.OUTDOOR
+
+}, (data, status) => {
+
+if(
+status === 'OK' &&
+data &&
+data.location &&
+data.location.latLng
+){
+
+resolve({
+lat: data.location.latLng.lat(),
+lng: data.location.latLng.lng()
+});
+
+} else {
+
+// Retente automatiquement
+tryLocation();
 
 }
+
+});
+
+}
+
+tryLocation();
+
+});
+
+}
+
 
 /* AVANT VALIDATION :
    PETITE -> GRANDE
@@ -364,7 +395,7 @@ function recenterFrance(){
 
 }
 
-function startRound(){
+async function startRound(){
 
   resultBox.style.display = "none";
 
@@ -378,7 +409,7 @@ function startRound(){
 
   recenterFrance();
 
-  const location = randomLocation();
+  const location = await randomLocation();
 
   realPosition =
     new google.maps.LatLng(
@@ -514,4 +545,3 @@ window.onload = initGame;
 
 </body>
 </html>
-
