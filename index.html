@@ -277,15 +277,17 @@ async function randomLocation(){
 
     function tryLocation(){
 
+      // Coordonnées plus strictes FRANCE
+
       const lat =
         Math.random() *
-        (51.2 - 42.2)
-        + 42.2;
+        (50.5 - 42.3)
+        + 42.3;
 
       const lng =
         Math.random() *
-        (8.5 - (-5.5))
-        + (-5.5);
+        (7.8 - (-4.9))
+        + (-4.9);
 
       const location = {
         lat: lat,
@@ -296,7 +298,7 @@ async function randomLocation(){
 
         location: location,
 
-        radius: 10000,
+        radius: 5000,
 
         source:
           google.maps.StreetViewSource.OUTDOOR
@@ -310,15 +312,37 @@ async function randomLocation(){
           data.location.latLng
         ){
 
-          resolve({
+          const panoLat =
+            data.location.latLng.lat();
 
-            lat:
-              data.location.latLng.lat(),
+          const panoLng =
+            data.location.latLng.lng();
 
-            lng:
-              data.location.latLng.lng()
+          /* Vérification stricte FRANCE */
 
-          });
+          if(
+
+            panoLat >= 42.3 &&
+            panoLat <= 50.5 &&
+
+            panoLng >= -4.9 &&
+            panoLng <= 7.8
+
+          ){
+
+            resolve({
+
+              lat: panoLat,
+              lng: panoLng
+
+            });
+
+          } else {
+
+            // Recommence
+            tryLocation();
+
+          }
 
         } else {
 
@@ -573,6 +597,5 @@ window.onload = initGame;
 
 </body>
 </html>
-
 
 
