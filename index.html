@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GeoGuessr France</title>
 
-  <!-- Leaflet -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet/dist/leaflet.css"
@@ -63,7 +62,7 @@
 
     }
 
-    /* FULLSCREEN APRÈS VALIDATION */
+    /* FULLSCREEN */
 
     #map-container.fullscreen{
 
@@ -121,6 +120,45 @@
     }
 
     button:hover{
+      background:#222;
+    }
+
+    /* RETOUR POSITION */
+
+    #reset-position-btn{
+
+      position:absolute;
+
+      bottom:20px;
+      right:20px;
+
+      z-index:4000;
+
+      width:55px;
+      height:55px;
+
+      border:none;
+
+      border-radius:50%;
+
+      background:#111;
+
+      color:white;
+
+      font-size:28px;
+
+      cursor:pointer;
+
+      display:flex;
+
+      align-items:center;
+      justify-content:center;
+
+      box-shadow:0 0 15px rgba(0,0,0,0.4);
+
+    }
+
+    #reset-position-btn:hover{
       background:#222;
     }
 
@@ -214,7 +252,7 @@
 <!-- MAP -->
 <div id="map-container">
 
-  <div class="controls">
+  <div class="controls" id="controls">
 
     <button onclick="toggleMap()">
       🗺️
@@ -230,11 +268,17 @@
 
 </div>
 
+<!-- RETOUR POSITION -->
+<button id="reset-position-btn"
+onclick="resetPosition()">
+  ↩️
+</button>
+
 <!-- LEAFLET -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <!-- GOOGLE -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-Ip7Tdn0LQn2XXeIh1K5ksvuIMuwjV50&libraries=geometry"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=TA_CLE_API&libraries=geometry"></script>
 
 <script>
 
@@ -262,22 +306,20 @@ const resultBox =
 const distanceText =
   document.getElementById("distance-text");
 
-/* LIMITES AUTOUR DE LA FRANCE */
+/* LIMITES FRANCE */
 
 const franceBounds = L.latLngBounds(
   L.latLng(41.0, -8.5),
   L.latLng(51.8, 10.0)
 );
 
-/* GÉNÉRATION ALÉATOIRE */
+/* RANDOM LOCATION */
 
 async function randomLocation(){
 
   return new Promise((resolve) => {
 
     function tryLocation(){
-
-      // Coordonnées plus strictes FRANCE
 
       const lat =
         Math.random() *
@@ -318,8 +360,6 @@ async function randomLocation(){
           const panoLng =
             data.location.latLng.lng();
 
-          /* Vérification stricte FRANCE */
-
           if(
 
             panoLat >= 42.3 &&
@@ -333,13 +373,13 @@ async function randomLocation(){
             resolve({
 
               lat: panoLat,
+
               lng: panoLng
 
             });
 
           } else {
 
-            // Recommence
             tryLocation();
 
           }
@@ -431,11 +471,40 @@ function recenterFrance(){
 
 }
 
+/* RETOUR POSITION */
+
+function resetPosition(){
+
+  if(panorama){
+
+    panorama.setPov({
+      heading:34,
+      pitch:10
+    });
+
+    panorama.setZoom(1);
+
+    panorama.setPosition(
+      realPosition
+    );
+
+  }
+
+}
+
 /* START ROUND */
 
 async function startRound(){
 
   resultBox.style.display = "none";
+
+  document.getElementById(
+    "controls"
+  ).style.display = "flex";
+
+  document.getElementById(
+    "reset-position-btn"
+  ).style.display = "flex";
 
   mapContainer.classList.remove(
     "fullscreen"
@@ -446,8 +515,6 @@ async function startRound(){
   );
 
   recenterFrance();
-
-  /* IMPORTANT */
 
   const location =
     await randomLocation();
@@ -515,11 +582,19 @@ function validateGuess(){
     "fullscreen"
   );
 
+  document.getElementById(
+    "controls"
+  ).style.display = "none";
+
+  document.getElementById(
+    "reset-position-btn"
+  ).style.display = "none";
+
   setTimeout(() => {
     map.invalidateSize();
   }, 500);
 
-  /* BON POINT EN VERT */
+  /* BON POINT */
 
   realMarker = L.circleMarker([
     realPosition.lat(),
@@ -597,5 +672,3 @@ window.onload = initGame;
 
 </body>
 </html>
-
-
