@@ -297,6 +297,8 @@ let panorama;
 let selectedLatLng = null;
 let realPosition = null;
 
+let roundEnded = false;
+
 const mapContainer =
   document.getElementById("map-container");
 
@@ -422,6 +424,8 @@ function toggleMap(){
 
 }
 
+/* INIT */
+
 function initGame(){
 
   map = L.map('map', {
@@ -447,30 +451,29 @@ function initGame(){
 
   map.on('click', function(e){
 
-  // Empêche de modifier
-  // après validation
+    // EMPÊCHE CHANGEMENT
+    // APRÈS VALIDATION
 
-  if(roundEnded){
-    return;
-  }
+    if(roundEnded){
+      return;
+    }
 
-  selectedLatLng = e.latlng;
+    selectedLatLng = e.latlng;
 
-  if(playerMarker){
-    map.removeLayer(playerMarker);
-  }
+    if(playerMarker){
+      map.removeLayer(playerMarker);
+    }
 
-  playerMarker =
-    L.marker(e.latlng).addTo(map);
+    playerMarker =
+      L.marker(e.latlng).addTo(map);
 
-});
+  });
 
-  startRound(
-   roundEnded = false;
-   resultBox.style.display = "none";
- );
-  
+  startRound();
+
 }
+
+/* RECENTER */
 
 function recenterFrance(){
 
@@ -507,6 +510,8 @@ function resetPosition(){
 async function startRound(){
 
   resultBox.style.display = "none";
+
+  roundEnded = false;
 
   document.getElementById(
     "controls"
@@ -560,9 +565,7 @@ async function startRound(){
 
 /* VALIDATE */
 
-function validateGuess(
-roundEnded = true;
-){
+function validateGuess(){
 
   if(!selectedLatLng){
 
@@ -587,6 +590,8 @@ roundEnded = true;
 
   const distanceKm =
     (distance / 1000).toFixed(2);
+
+  roundEnded = true;
 
   /* FULLSCREEN */
 
@@ -684,4 +689,3 @@ window.onload = initGame;
 
 </body>
 </html>
-
