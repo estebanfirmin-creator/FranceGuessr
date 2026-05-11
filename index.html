@@ -447,19 +447,29 @@ function initGame(){
 
   map.on('click', function(e){
 
-    selectedLatLng = e.latlng;
+  // Empêche de modifier
+  // après validation
 
-    if(playerMarker){
-      map.removeLayer(playerMarker);
-    }
+  if(roundEnded){
+    return;
+  }
 
-    playerMarker =
-      L.marker(e.latlng).addTo(map);
+  selectedLatLng = e.latlng;
 
-  });
+  if(playerMarker){
+    map.removeLayer(playerMarker);
+  }
 
-  startRound();
+  playerMarker =
+    L.marker(e.latlng).addTo(map);
 
+});
+
+  startRound(
+   roundEnded = false;
+   resultBox.style.display = "none";
+ );
+  
 }
 
 function recenterFrance(){
@@ -550,7 +560,9 @@ async function startRound(){
 
 /* VALIDATE */
 
-function validateGuess(){
+function validateGuess(
+roundEnded = true;
+){
 
   if(!selectedLatLng){
 
@@ -672,3 +684,4 @@ window.onload = initGame;
 
 </body>
 </html>
+
