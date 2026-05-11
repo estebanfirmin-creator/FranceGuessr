@@ -132,9 +132,6 @@
       bottom:20px;
       left:20px;
 
-      let roundEnded = false;
-      let realPosition = null;
-
       z-index:4000;
 
       width:55px;
@@ -300,6 +297,8 @@ let panorama;
 let selectedLatLng = null;
 let realPosition = null;
 
+let roundEnded = false;
+
 const mapContainer =
   document.getElementById("map-container");
 
@@ -425,6 +424,8 @@ function toggleMap(){
 
 }
 
+/* INIT */
+
 function initGame(){
 
   map = L.map('map', {
@@ -450,6 +451,13 @@ function initGame(){
 
   map.on('click', function(e){
 
+    // EMPÊCHE CHANGEMENT
+    // APRÈS VALIDATION
+
+    if(roundEnded){
+      return;
+    }
+
     selectedLatLng = e.latlng;
 
     if(playerMarker){
@@ -464,6 +472,8 @@ function initGame(){
   startRound();
 
 }
+
+/* RECENTER */
 
 function recenterFrance(){
 
@@ -500,6 +510,8 @@ function resetPosition(){
 async function startRound(){
 
   resultBox.style.display = "none";
+
+  roundEnded = false;
 
   document.getElementById(
     "controls"
@@ -578,6 +590,8 @@ function validateGuess(){
 
   const distanceKm =
     (distance / 1000).toFixed(2);
+
+  roundEnded = true;
 
   /* FULLSCREEN */
 
@@ -675,6 +689,3 @@ window.onload = initGame;
 
 </body>
 </html>
-
-
-
