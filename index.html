@@ -931,6 +931,10 @@ async function startRound(){
 
 function validateGuess(){
 
+  if(roundEnded){
+    return;
+  }
+
   if(!selectedLatLng){
 
     alert("Clique sur la map");
@@ -955,22 +959,87 @@ function validateGuess(){
   const distanceKm =
     (distance / 1000).toFixed(2);
 
-if(multiplayer){
+  /* MULTIJOUEUR */
+
+  if(multiplayer){
+
+    roundEnded = true;
+
+    db.ref(
+      "rooms/" +
+      currentRoom +
+      "/guesses/" +
+      playerName
+    ).set(distanceKm);
+
+    waitAllPlayers();
+
+    return;
+
+  }
+
+  /* SOLO */
 
   roundEnded = true;
 
-  db.ref(
-    "rooms/" + currentRoom +
-    "/guesses/" + playerName
-  ).set(distanceKm);
+  mapContainer.classList.add(
+    "fullscreen"
+  );
 
-  waitAllPlayers();
+  document.getElementById(
+    "controls"
+  ).style.display = "none";
 
-  return;
+  document.getElementById(
+    "reset-position-btn"
+  ).style.display = "none";
+
+  setTimeout(() => {
+    map.invalidateSize();
+  }, 500);
+
+  realMarker = L.circleMarker([
+    realPosition.lat(),
+    realPosition.lng()
+  ], {
+
+    radius:10,
+
+    color:"green",
+
+    fillColor:"green",
+
+    fillOpacity:1
+
+  }).addTo(map);
+
+  line = L.polyline([
+    [
+      selectedLatLng.lat,
+      selectedLatLng.lng
+    ],
+    [
+      realPosition.lat(),
+      realPosition.lng()
+    ]
+  ]).addTo(map);
+
+  map.fitBounds(
+    line.getBounds(),
+    {
+      padding:[100,100]
+    }
+  );
+
+  distanceText.innerHTML =
+    "Bravo : " +
+    distanceKm +
+    " km";
+
+  resultBox.style.display =
+    "block";
 
 }
-
-  roundEnded = true;
 
   /* FULLSCREEN */
 
@@ -1402,41 +1471,42 @@ function listenGameStart(){
 
   db.ref(
     "rooms/" + currentRoom
-  ).on("value", async (snapshot) => {
+  ).on("value", (snapshot) => {
 
-    const room =
-      snapshot.val();
+    const room = snapshot.val();
+
+    if(!room){
+      return;
+    }
+
+    /* PARTIE COMMENCÉE */
 
     if(room.started && room.location){
 
-  closeMultiplayerMenu();
+      closeMultiplayerMenu();
 
-  startSharedRound(
-    room.location
-  );
+      startSharedRound(
+        room.location
+      );
 
-}
+      document.getElementById(
+        "room-code"
+      ).style.display = "none";
 
-if(room.started){
+      document.getElementById(
+        "leave-room-btn"
+      ).style.display = "block";
 
-  document.getElementById(
-    "room-code"
-  ).style.display = "none";
+      document.getElementById(
+        "start-game-btn"
+      ).style.display = "none";
 
-  document.getElementById(
-    "leave-room-btn"
-  ).style.display = "block";
+      document.getElementById(
+        "waiting-host"
+      ).style.display = "none";
 
-  document.getElementById(
-    "start-game-btn"
-  ).style.display = "none";
+    }
 
-  document.getElementById(
-    "waiting-host"
-  ).style.display = "none";
-
-}
-      
   });
 
 }
@@ -1563,9 +1633,12 @@ async function nextMultiplayerRound(){
 
 }
 
+console.log("SCRIPT OK");
+
 window.onload = initGame;
 
 </script>
 
 </body>
 </html>
+
