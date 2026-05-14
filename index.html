@@ -305,7 +305,7 @@
 
   flex-direction:column;
 
-  gap:20px;
+  gap:35px;
 
   position:relative;
 
@@ -402,6 +402,20 @@
   border-radius:10px;
 
 }
+
+#start-game-btn{
+
+  background:#2ecc71;
+
+  color:white;
+
+}
+
+#start-game-btn:hover{
+
+  background:#27ae60;
+
+}
   </style>
 </head>
 <body>
@@ -484,14 +498,43 @@ onclick="resetPosition()">
       CODE
     </div>
 
-    <button
-    id="start-game-btn"
-    class="multi-btn"
-    onclick="startMultiplayerGame()">
+    <div
+id="waiting-host"
+style="
+display:none;
+color:white;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+margin-bottom:10px;
+">
 
-      Commencer
+  En attente de l’hôte...
 
-    </button>
+</div>
+
+<button
+id="start-game-btn"
+class="multi-btn"
+onclick="startMultiplayerGame()">
+
+  Commencer
+
+</button>
+
+<button
+id="leave-room-btn"
+class="multi-btn"
+onclick="leaveRoom()"
+style="
+display:none;
+background:#e74c3c;
+color:white;
+">
+
+  Quitter
+
+</button>
 
     <div id="players-list">
 
@@ -1072,11 +1115,15 @@ function showTeamResult(player, distance){
 
   if(!isHost){
 
-    document.getElementById(
-      "continue-btn"
-    ).style.display = "none";
+  document.getElementById(
+    "start-game-btn"
+  ).style.display = "none";
 
-  } else {
+  document.getElementById(
+    "waiting-host"
+  ).style.display = "block";
+
+} else {
 
     document.getElementById(
       "continue-btn"
@@ -1236,11 +1283,26 @@ function showLobby(){
 function listenPlayers(){
 
   db.ref(
-    "rooms/" + currentRoom + "/players"
-  ).on("value", (snapshot) => {
+  "rooms/" + currentRoom
+).on("value", (snapshot) => {
 
-    const players =
-      snapshot.val();
+    const room =
+  snapshot.val();
+
+if(!room){
+
+  alert(
+    "L’hôte a quitté la partie"
+  );
+
+  location.reload();
+
+  return;
+
+}
+
+const players =
+  room.players;
 
     const playersList =
       document.getElementById(
@@ -1303,6 +1365,17 @@ function listenGameStart(){
       snapshot.val();
 
     if(room.started){
+document.getElementById(
+  "leave-room-btn"
+).style.display = "block";
+
+document.getElementById(
+  "start-game-btn"
+).style.display = "none";
+
+document.getElementById(
+  "waiting-host"
+).style.display = "none";
 
       closeMultiplayerMenu();
 
@@ -1351,7 +1424,60 @@ async function startSharedRound(location){
 
 }
 
+async function leaveRoom(){
 
+  if(!currentRoom) return;
+
+  const roomRef =
+    db.ref(
+      "rooms/" + currentRoom
+    );
+
+  if(isHost){
+
+    await roomRef.remove();
+
+    alert(
+      "La partie a été supprimée"
+    );
+
+  } else {
+
+    await roomRef.child(
+      "players/" + playerName
+    ).remove();
+
+    await roomRef.child(
+      "guesses/" + playerName
+    ).remove();
+
+    const snapshot =
+      await roomRef.child(
+        "players"
+      ).once("value");
+
+    const players =
+      snapshot.val();
+
+    if(!players){
+
+      await roomRef.remove();
+
+    }
+
+  }
+
+  multiplayer = false;
+
+  currentRoom = null;
+
+  isHost = false;
+
+  closeMultiplayerMenu();
+
+  location.reload();
+
+}
 
 function openMultiplayerMenu(){
 
