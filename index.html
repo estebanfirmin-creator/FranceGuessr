@@ -941,17 +941,15 @@ function validateGuess(){
 if(multiplayer){
 
   db.ref(
-    "rooms/" + currentRoom +
-    "/guesses/" + playerName
-  ).transaction((current) => {
+  "rooms/" + currentRoom +
+  "/guesses/" + playerName
+).set({
 
-  if(current === null){
+  distance: distanceKm,
 
-    return distanceKm;
+  lat: selectedLatLng.lat,
 
-  }
-
-  return;
+  lng: selectedLatLng.lng
 
 });
 
@@ -1058,29 +1056,25 @@ function waitAllPlayers(){
 
     if(totalPlayers === totalGuesses){
 
-      let bestPlayer = null;
-
       let bestDistance = Infinity;
 
       for(let name in room.guesses){
 
         const dist =
           parseFloat(
-            room.guesses[name]
+            room.guesses[name].distance
           );
 
         if(dist < bestDistance){
 
           bestDistance = dist;
 
-          bestPlayer = name;
-
         }
 
       }
 
       showTeamResult(
-        bestPlayer,
+        room.guesses,
         bestDistance
       );
 
@@ -1090,7 +1084,7 @@ function waitAllPlayers(){
 
 }
 
-function showTeamResult(player, distance){
+function showTeamResult(guesses, distance){
 
   roundEnded = true;
 
@@ -1101,25 +1095,107 @@ function showTeamResult(player, distance){
   resultBox.style.display =
     "block";
 
+  /* CACHE BOUTONS */
+
+  document.getElementById(
+    "controls"
+  ).style.display = "none";
+
+  document.getElementById(
+    "reset-position-btn"
+  ).style.display = "none";
+
+  setTimeout(() => {
+    map.invalidateSize();
+  }, 500);
+
+  /* TEXTE */
+
   distanceText.innerHTML =
-    player +
-    " est le plus proche : " +
+    "Bravo : " +
     distance +
     " km";
 
-  if(!isHost){
+  /* POINT VERT */
 
-  document.getElementById(
-    "start-game-btn"
-  ).style.display = "none";
+  realMarker = L.circleMarker([
+    realPosition.lat(),
+    realPosition.lng()
+  ], {
 
-} else {
+    radius:10,
 
-    document.getElementById(
-      "continue-btn"
-    ).style.display = "block";
+    color:"green",
+
+    fillColor:"green",
+
+    fillOpacity:1
+
+  }).addTo(map);
+
+  /* TOUS LES JOUEURS */
+
+  for(let name in guesses){
+
+    const guess =
+      guesses[name];
+
+    /* POINT JOUEUR */
+
+    const marker =
+      L.marker([
+        guess.lat,
+        guess.lng
+      ]).addTo(map);
+
+    /* NOM */
+
+    marker.bindTooltip(name, {
+
+      permanent:true,
+
+      direction:"top",
+
+      offset:[0, -10]
+
+    }).openTooltip();
+
+    /* LIGNE */
+
+    L.polyline([
+      [
+        guess.lat,
+        guess.lng
+      ],
+      [
+        realPosition.lat(),
+        realPosition.lng()
+      ]
+    ]).addTo(map);
 
   }
+
+  /* ZOOM GLOBAL */
+
+  const group = [];
+
+  for(let name in guesses){
+
+    group.push([
+      guesses[name].lat,
+      guesses[name].lng
+    ]);
+
+  }
+
+  group.push([
+    realPosition.lat(),
+    realPosition.lng()
+  ]);
+
+  map.fitBounds(group, {
+    padding:[100,100]
+  });
 
 }
 
