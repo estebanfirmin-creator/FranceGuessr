@@ -1094,6 +1094,19 @@ function showTeamResult(guesses, distance){
 
   resultBox.style.display =
     "block";
+if(isHost){
+
+  document.getElementById(
+    "continue-btn"
+  ).style.display = "block";
+
+} else {
+
+  document.getElementById(
+    "continue-btn"
+  ).style.display = "none";
+
+}
 
   /* CACHE BOUTONS */
 
@@ -1369,6 +1382,8 @@ if(!room){
 
 const players =
   room.players;
+const host =
+  room.host;
 
     const playersList =
       document.getElementById(
@@ -1385,16 +1400,17 @@ const players =
   div.className =
     "player-item";
 
-  if(name === playerName){
+  let tags = "";
 
-    div.innerHTML =
-      name + " (toi)";
+if(name === playerName){
+  tags += " (toi)";
+}
 
-  } else {
+if(name === host){
+  tags += " (hôte)";
+}
 
-    div.innerHTML = name;
-
-  }
+div.innerHTML = name + tags;
 
   playersList.appendChild(div);
 
