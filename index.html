@@ -1094,6 +1094,7 @@ function showTeamResult(guesses, distance){
 
   resultBox.style.display =
     "block";
+
 if(isHost){
 
   document.getElementById(
@@ -1105,6 +1106,9 @@ if(isHost){
   document.getElementById(
     "continue-btn"
   ).style.display = "none";
+
+  distanceText.innerHTML +=
+    "<br><span style='font-size:28px;'>En attente de l’hôte...</span>";
 
 }
 
@@ -1371,7 +1375,7 @@ function listenPlayers(){
 if(!room){
 
   alert(
-    "L’hôte a quitté la partie"
+    "L’hôte a quitté la partie\nLa partie a été supprimée"
   );
 
   location.reload();
@@ -1514,10 +1518,6 @@ async function leaveRoom(){
   if(isHost){
 
     await roomRef.remove();
-
-    alert(
-      "La partie a été supprimée"
-    );
 
   } else {
 
