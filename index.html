@@ -507,6 +507,21 @@ onclick="resetPosition()">
       CODE
     </div>
 
+    <div
+id="waiting-host"
+style="
+display:none;
+color:white;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+margin-bottom:10px;
+">
+
+  En attente de l’hôte...
+
+</div>
+
 <button
 id="start-game-btn"
 class="multi-btn"
@@ -549,30 +564,30 @@ color:white;
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <!-- GOOGLE -->
-<script src="https://maps.googleapis.com/maps/api/js?key=MA-CLE&libraries=geometry"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-Ip7Tdn0LQn2XXeIh1K5ksvuIMuwjV50&libraries=geometry"></script>
 
 <script>
 
 const firebaseConfig = {
 
-  apiKey: "MA-CLÉ",
+  apiKey: "AIzaSyDjup1pMAENznn129njn4qnqoTasaN9-n8",
 
   authDomain:
-  "MA-CLÉ",
+  "franceguessr-d1706.firebaseapp.com",
 
   databaseURL:
-  "MA-CLÉ",
+  "https://franceguessr-d1706-default-rtdb.europe-west1.firebasedatabase.app",
 
-  projectId: "MA-CLÉ",
+  projectId: "franceguessr-d1706",
 
   storageBucket:
-  "MA-CLÉ",
+  "franceguessr-d1706.firebasestorage.app",
 
   messagingSenderId:
-  "MA-CLÉ",
+  "232820209634",
 
   appId:
-  "MA-CLÉ"
+  "1:232820209634:web:8326a8f01fcbadc18a6bbb"
 
 };
 
@@ -1113,6 +1128,10 @@ function showTeamResult(player, distance){
     "start-game-btn"
   ).style.display = "none";
 
+  document.getElementById(
+    "waiting-host"
+  ).style.display = "block";
+
 } else {
 
     document.getElementById(
@@ -1303,26 +1322,26 @@ const players =
 
     for(let name in players){
 
-  const div =
-    document.createElement("div");
+      const div =
+        document.createElement("div");
 
-  div.className =
-    "player-item";
+      div.className =
+        "player-item";
 
-  if(name === playerName){
+      if(name === playerName){
 
-    div.innerHTML =
-      name + " (toi)";
+        div.innerHTML =
+          name + " (toi)";
 
-  } else {
+      } else {
 
-    div.innerHTML = name;
+        div.innerHTML = name;
 
-  }
+      }
 
-  playersList.appendChild(div);
+      playersList.appendChild(div);
 
-}
+    }
 
   });
 
@@ -1361,6 +1380,10 @@ document.getElementById(
 
 document.getElementById(
   "start-game-btn"
+).style.display = "none";
+
+document.getElementById(
+  "waiting-host"
 ).style.display = "none";
 
       closeMultiplayerMenu();
