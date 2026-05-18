@@ -235,15 +235,15 @@
 
   position:absolute;
 
-  top:20px;
-  right:20px;
+  bottom:90px;
+  left:20px;
 
-  width:50px;
-  height:50px;
+  width:55px;
+  height:55px;
 
   border:none;
 
-  border-radius:12px;
+  border-radius:50%;
 
   background:#111;
 
@@ -806,9 +806,9 @@ function initGame(){
     // EMPÊCHE CHANGEMENT
     // APRÈS VALIDATION
 
-    if(roundEnded){
-      return;
-    }
+    if(roundEnded || hasValidated){
+    return;
+  }
 
     selectedLatLng = e.latlng;
 
