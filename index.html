@@ -612,6 +612,8 @@ let multiplayer = false;
 
 let validatedPlayers = {};
 
+let hasValidated = false;
+
 const mapContainer =
   document.getElementById("map-container");
 
@@ -940,40 +942,35 @@ function validateGuess(){
 
   const distanceKm =
     (distance / 1000).toFixed(2);
+
 if(multiplayer){
 
+  if(hasValidated){
+    return;
+  }
+
+  hasValidated = true;
+
   db.ref(
-  "rooms/" + currentRoom +
-  "/guesses/" + playerName
-).set({
+    "rooms/" + currentRoom +
+    "/guesses/" + playerName
+  ).set({
 
-  distance: distanceKm,
+    distance: distanceKm,
 
-  lat: selectedLatLng.lat,
+    lat: selectedLatLng.lat,
 
-  lng: selectedLatLng.lng
+    lng: selectedLatLng.lng
 
-});
+  });
 
   document.querySelector(
-  '#controls button:last-child'
-).disabled = true;
+    '#controls button:last-child'
+  ).disabled = true;
 
-if(playerMarker){
-  multiplayerLayers.push(playerMarker);
-}
+  waitAllPlayers();
 
-document.querySelector(
-  '#controls button:last-child'
-).disabled = true;
-
-panorama.setOptions({
-  disableDefaultUI:true
-});
-
-waitAllPlayers();
-
-return;
+  return;
 
 }
 
@@ -1519,7 +1516,7 @@ function listenGameStart(){
     const room =
       snapshot.val();
 
-    if(room.started && room.location){
+    if(room.started && room.location && !hasValidated){
 
       document.getElementById(
         "leave-room-btn"
@@ -1550,6 +1547,8 @@ async function startSharedRound(location){
   resultBox.style.display = "none";
 
   roundEnded = false;
+
+  hasValidated = false;
 
 document.querySelector(
   '#controls button:last-child'
