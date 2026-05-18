@@ -955,7 +955,9 @@ if(multiplayer){
 
 });
 
-  roundEnded = true;
+  document.querySelector(
+  '#controls button:last-child'
+).disabled = true;
 
 if(playerMarker){
   multiplayerLayers.push(playerMarker);
@@ -1529,9 +1531,13 @@ function listenGameStart(){
 
       closeMultiplayerMenu();
 
-      startSharedRound(
-        room.location
-      );
+   if(!roundEnded){
+
+  startSharedRound(
+    room.location
+  );
+
+}
 
     }
 
@@ -1544,6 +1550,10 @@ async function startSharedRound(location){
   resultBox.style.display = "none";
 
   roundEnded = false;
+
+document.querySelector(
+  '#controls button:last-child'
+).disabled = false;
 
 if(playerMarker)
   map.removeLayer(playerMarker);
