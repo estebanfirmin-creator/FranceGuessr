@@ -228,6 +228,7 @@
     #continue-btn:hover{
       background:#27ae60;
     }
+
 /* BOUTON MULTIJOUEUR */
 
 #multiplayer-btn{
@@ -956,9 +957,13 @@ if(multiplayer){
 
   roundEnded = true;
 
-  waitAllPlayers();
+document.querySelector(
+  '#controls button:last-child'
+).disabled = true;
 
-  return;
+waitAllPlayers();
+
+return;
 
 }
 
@@ -1533,6 +1538,10 @@ multiplayerLayers = [];
 document.getElementById(
   "controls"
 ).style.display = "flex";
+
+document.querySelector(
+  '#controls button:last-child'
+).disabled = false;
 
 document.getElementById(
   "reset-position-btn"
