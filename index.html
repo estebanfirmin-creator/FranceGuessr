@@ -614,6 +614,12 @@ let validatedPlayers = {};
 
 let hasValidated = false;
 
+let currentRoundId = 0;
+
+let currentRound = 1;
+
+const maxRounds = 5;
+
 const mapContainer =
   document.getElementById("map-container");
 
@@ -1282,20 +1288,41 @@ async function nextRound(){
 
   if(isHost){
 
-    const location =
-      await randomLocation();
+  /* FIN DE PARTIE */
+
+  if(currentRound >= maxRounds){
 
     await db.ref(
       "rooms/" + currentRoom
-    ).update({
+    ).remove();
 
-      location: location,
+    alert(
+      "La partie est terminée"
+    );
 
-      guesses: {}
+    location.reload();
 
-    });
+    return;
 
   }
+
+  const location =
+    await randomLocation();
+
+  await db.ref(
+    "rooms/" + currentRoom
+  ).update({
+
+    location: location,
+
+    guesses: {},
+
+    roundId: Date.now(),
+
+    currentRound:
+      currentRound + 1
+
+  });
 
 }
 
@@ -1436,13 +1463,9 @@ function listenPlayers(){
 
 if(!room){
 
-  if(!isHost){
-
-    alert(
-      "L’hôte a quitté la partie\nLa partie a été supprimée"
-    );
-
-  }
+  alert(
+    "La partie est terminée"
+  );
 
   location.reload();
 
@@ -1496,18 +1519,24 @@ async function startMultiplayerGame(){
     await randomLocation();
 
   await db.ref(
-    "rooms/" + currentRoom
-  ).update({
+  "rooms/" + currentRoom
+).update({
 
-    started:true,
+  started:true,
 
-    location:location
+  location:location,
 
-  });
+  roundId: Date.now(),
+
+  currentRound:1
+
+});
 
 }
 
 function listenGameStart(){
+
+  function listenGameStart(){
 
   db.ref(
     "rooms/" + currentRoom
@@ -1516,7 +1545,19 @@ function listenGameStart(){
     const room =
       snapshot.val();
 
-    if(room.started && room.location && !hasValidated){
+    if(
+      room &&
+      room.started &&
+      room.location &&
+      room.roundId &&
+      room.roundId !== currentRoundId
+    ){
+
+      currentRoundId =
+        room.roundId;
+
+      currentRound =
+        room.currentRound || 1;
 
       document.getElementById(
         "leave-room-btn"
@@ -1528,13 +1569,9 @@ function listenGameStart(){
 
       closeMultiplayerMenu();
 
-   if(!roundEnded){
-
-  startSharedRound(
-    room.location
-  );
-
-}
+      startSharedRound(
+        room.location
+      );
 
     }
 
