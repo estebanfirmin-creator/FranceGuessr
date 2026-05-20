@@ -1300,14 +1300,14 @@ async function nextRound(){
       "La partie est terminée"
     );
 
-    location.reload();
+    window.location.reload();
 
     return;
 
   }
 
   const newLocation =
-  await randomLocation();
+    await randomLocation();
 
   await db.ref(
     "rooms/" + currentRoom
@@ -1515,22 +1515,22 @@ div.innerHTML = name + tags;
 
 async function startMultiplayerGame(){
 
-  const location =
+  const newLocation =
     await randomLocation();
 
   await db.ref(
-  "rooms/" + currentRoom
-).update({
+    "rooms/" + currentRoom
+  ).update({
 
-  started:true,
+    started:true,
 
-  location:location,
+    location:newLocation,
 
-  roundId: Date.now(),
+    roundId: Date.now(),
 
-  currentRound:1
+    currentRound:1
 
-});
+  });
 
 }
 
