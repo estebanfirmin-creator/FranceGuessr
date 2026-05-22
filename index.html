@@ -440,9 +440,9 @@
     Bravo : 0 km
   </div>
 
-  <button id="continue-btn" onclick="nextRound()">
-    Continuer
-  </button>
+<button id="continue-btn" onclick="continueMultiplayer()">
+  Continuer
+</button>
 
 </div>
 
@@ -567,7 +567,7 @@ const firebaseConfig = {
   projectId: "franceguessr-d1706",
 
   storageBucket:
-  "franceguessr-d1706.firebasestorage.app",
+  "franceguessr-d1706.firebasestorage.app,
 
   messagingSenderId:
   "232820209634",
@@ -1110,19 +1110,9 @@ function showTeamResult(guesses, distance){
   resultBox.style.display =
     "block";
 
-if(isHost){
-
-  document.getElementById(
-    "continue-btn"
-  ).style.display = "block";
-
-} else {
-
-  document.getElementById(
-    "continue-btn"
-  ).style.display = "none";
-
-}
+document.getElementById(
+  "continue-btn"
+).style.display = "block";
 
   /* CACHE BOUTONS */
 
@@ -1296,6 +1286,37 @@ async function nextRound(){
     });
 
   }
+
+}
+
+async function continueMultiplayer(){
+
+  // SOLO
+  if(!multiplayer){
+
+    nextRound();
+    return;
+
+  }
+
+  // MULTIJOUEUR
+
+  // Les joueurs non-hôtes attendent
+  if(!isHost){
+
+    distanceText.innerHTML =
+      "En attente de l'hôte...";
+
+    document.getElementById(
+      "continue-btn"
+    ).style.display = "none";
+
+    return;
+
+  }
+
+  // L'hôte lance la prochaine manche
+  nextRound();
 
 }
 
@@ -1516,7 +1537,9 @@ function listenGameStart(){
     const room =
       snapshot.val();
 
-    if(room.started && room.location && !hasValidated){
+    if(!room) return;
+
+    if(room.started && room.location){
 
       document.getElementById(
         "leave-room-btn"
@@ -1528,13 +1551,26 @@ function listenGameStart(){
 
       closeMultiplayerMenu();
 
-   if(!roundEnded){
+      // Nouvelle manche uniquement si les coordonnées changent
+      const newLat = room.location.lat;
+      const newLng = room.location.lng;
 
-  startSharedRound(
-    room.location
-  );
+      const currentLat =
+        realPosition ? realPosition.lat() : null;
 
-}
+      const currentLng =
+        realPosition ? realPosition.lng() : null;
+
+      if(
+        currentLat !== newLat ||
+        currentLng !== newLng
+      ){
+
+        startSharedRound(
+          room.location
+        );
+
+      }
 
     }
 
