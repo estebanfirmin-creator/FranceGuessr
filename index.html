@@ -614,6 +614,8 @@ let validatedPlayers = {};
 
 let hasValidated = false;
 
+let currentRoundId = 0;
+
 const mapContainer =
   document.getElementById("map-container");
 
@@ -1285,15 +1287,20 @@ async function nextRound(){
     const location =
       await randomLocation();
 
-    await db.ref(
-      "rooms/" + currentRoom
-    ).update({
+    const nextRoundId =
+  currentRoundId + 1;
 
-      location: location,
+await db.ref(
+  "rooms/" + currentRoom
+).update({
 
-      guesses: {}
+  location: location,
 
-    });
+  guesses: {},
+
+  roundId: nextRoundId
+
+});
 
   }
 
@@ -1499,9 +1506,13 @@ async function startMultiplayerGame(){
     "rooms/" + currentRoom
   ).update({
 
-    started:true,
+    started: true,
 
-    location:location
+    location: location,
+
+    guesses: {},
+
+    roundId: 1
 
   });
 
@@ -1513,10 +1524,11 @@ function listenGameStart(){
     "rooms/" + currentRoom
   ).on("value", async (snapshot) => {
 
-    const room =
-      snapshot.val();
+    const room = snapshot.val();
 
-    if(room.started && room.location)
+    if(!room) return;
+
+    if(room.started && room.location){
 
       document.getElementById(
         "leave-room-btn"
@@ -1528,9 +1540,18 @@ function listenGameStart(){
 
       closeMultiplayerMenu();
 
-   startSharedRound(
-  room.location
-);
+      // IMPORTANT :
+      // relance seulement si nouveau round
+
+      if(room.roundId !== currentRoundId){
+
+        currentRoundId = room.roundId;
+
+        startSharedRound(
+          room.location
+        );
+
+      }
 
     }
 
