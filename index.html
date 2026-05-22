@@ -440,9 +440,9 @@
     Bravo : 0 km
   </div>
 
-<button id="continue-btn" onclick="quitMultiplayerGame()">
-  Continuer
-</button>
+  <button id="continue-btn" onclick="nextRound()">
+    Continuer
+  </button>
 
 </div>
 
@@ -1288,22 +1288,6 @@ async function nextRound(){
     });
 
   }
-
-}
-
-async function quitMultiplayerGame(){
-
-  // Si on est en multi
-  if(multiplayer){
-
-    await leaveRoom();
-
-    return;
-
-  }
-
-  // Sinon solo normal
-  nextRound();
 
 }
 
