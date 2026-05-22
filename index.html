@@ -570,10 +570,10 @@ const firebaseConfig = {
   "franceguessr-d1706.firebasestorage.app",
 
   messagingSenderId:
-  "1:232820209634:web:8326a8f01fcbadc18a6bbb",
+  "232820209634",
 
   appId:
-  "G-7NX61P86N8"
+  "1:232820209634:web:8326a8f01fcbadc18a6bbb"
 
 };
 
@@ -613,8 +613,6 @@ let multiplayer = false;
 let validatedPlayers = {};
 
 let hasValidated = false;
-
-let currentRoundId = 0;
 
 const mapContainer =
   document.getElementById("map-container");
@@ -894,14 +892,13 @@ async function startRound(){
       location.lng
     );
 
-  if(!panorama){
-
   panorama =
     new google.maps.StreetViewPanorama(
       document.getElementById(
         "street-view"
       ),
       {
+        position: realPosition,
 
         pov:{
           heading:34,
@@ -913,20 +910,10 @@ async function startRound(){
         addressControl:false,
 
         fullscreenControl:false
-
       }
     );
 
 }
-
-panorama.setPosition(realPosition);
-
-panorama.setPov({
-  heading:34,
-  pitch:10
-});
-
-panorama.setZoom(1);
 
 /* VALIDATE */
 
@@ -1298,20 +1285,15 @@ async function nextRound(){
     const location =
       await randomLocation();
 
-    const nextRoundId =
-  currentRoundId + 1;
+    await db.ref(
+      "rooms/" + currentRoom
+    ).update({
 
-await db.ref(
-  "rooms/" + currentRoom
-).update({
+      location: location,
 
-  location: location,
+      guesses: {}
 
-  guesses: {},
-
-  roundId: nextRoundId
-
-});
+    });
 
   }
 
@@ -1517,13 +1499,9 @@ async function startMultiplayerGame(){
     "rooms/" + currentRoom
   ).update({
 
-    started: true,
+    started:true,
 
-    location: location,
-
-    guesses: {},
-
-    roundId: 1
+    location:location
 
   });
 
@@ -1535,11 +1513,10 @@ function listenGameStart(){
     "rooms/" + currentRoom
   ).on("value", async (snapshot) => {
 
-    const room = snapshot.val();
+    const room =
+      snapshot.val();
 
-    if(!room) return;
-
-    if(room.started && room.location){
+    if(room.started && room.location && !hasValidated){
 
       document.getElementById(
         "leave-room-btn"
@@ -1551,18 +1528,13 @@ function listenGameStart(){
 
       closeMultiplayerMenu();
 
-      // IMPORTANT :
-      // relance seulement si nouveau round
+   if(!roundEnded){
 
-      if(room.roundId !== currentRoundId){
+  startSharedRound(
+    room.location
+  );
 
-        currentRoundId = room.roundId;
-
-        startSharedRound(
-          room.location
-        );
-
-      }
+}
 
     }
 
@@ -1620,14 +1592,13 @@ mapContainer.classList.remove(
       location.lng
     );
 
-  if(!panorama){
-
   panorama =
     new google.maps.StreetViewPanorama(
       document.getElementById(
         "street-view"
       ),
       {
+        position: realPosition,
 
         pov:{
           heading:34,
@@ -1639,21 +1610,8 @@ mapContainer.classList.remove(
         addressControl:false,
 
         fullscreenControl:false
-
       }
     );
-
-}
-
-panorama.setPosition(realPosition);
-
-panorama.setPov({
-  heading:34,
-  pitch:10
-});
-
-panorama.setZoom(1);
-
 panorama.setOptions({
   disableDefaultUI:false
 });
@@ -1732,4 +1690,4 @@ window.onload = initGame;
 </script>
 
 </body>
-</html> 
+</html>
