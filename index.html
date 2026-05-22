@@ -894,13 +894,14 @@ async function startRound(){
       location.lng
     );
 
+  if(!panorama){
+
   panorama =
     new google.maps.StreetViewPanorama(
       document.getElementById(
         "street-view"
       ),
       {
-        position: realPosition,
 
         pov:{
           heading:34,
@@ -912,10 +913,20 @@ async function startRound(){
         addressControl:false,
 
         fullscreenControl:false
+
       }
     );
 
 }
+
+panorama.setPosition(realPosition);
+
+panorama.setPov({
+  heading:34,
+  pitch:10
+});
+
+panorama.setZoom(1);
 
 /* VALIDATE */
 
@@ -1609,13 +1620,14 @@ mapContainer.classList.remove(
       location.lng
     );
 
+  if(!panorama){
+
   panorama =
     new google.maps.StreetViewPanorama(
       document.getElementById(
         "street-view"
       ),
       {
-        position: realPosition,
 
         pov:{
           heading:34,
@@ -1627,8 +1639,21 @@ mapContainer.classList.remove(
         addressControl:false,
 
         fullscreenControl:false
+
       }
     );
+
+}
+
+panorama.setPosition(realPosition);
+
+panorama.setPov({
+  heading:34,
+  pitch:10
+});
+
+panorama.setZoom(1);
+
 panorama.setOptions({
   disableDefaultUI:false
 });
