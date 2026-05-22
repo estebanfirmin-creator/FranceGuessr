@@ -570,10 +570,10 @@ const firebaseConfig = {
   "franceguessr-d1706.firebasestorage.app",
 
   messagingSenderId:
-  "232820209634",
+  "1:232820209634:web:8326a8f01fcbadc18a6bbb",
 
   appId:
-  "1:232820209634:web:8326a8f01fcbadc18a6bbb"
+  "G-7NX61P86N8"
 
 };
 
@@ -1516,7 +1516,7 @@ function listenGameStart(){
     const room =
       snapshot.val();
 
-    if(room.started && room.location && !hasValidated){
+    if(room.started && room.location)
 
       document.getElementById(
         "leave-room-btn"
@@ -1528,13 +1528,9 @@ function listenGameStart(){
 
       closeMultiplayerMenu();
 
-   if(!roundEnded){
-
-  startSharedRound(
-    room.location
-  );
-
-}
+   startSharedRound(
+  room.location
+);
 
     }
 
@@ -1690,4 +1686,4 @@ window.onload = initGame;
 </script>
 
 </body>
-</html>
+</html> 
