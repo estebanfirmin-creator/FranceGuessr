@@ -440,7 +440,7 @@
     Bravo : 0 km
   </div>
 
-  <button id="continue-btn" onclick="leaveRoom()">
+  <button id="continue-btn" onclick="nextRound()">
     Continuer
   </button>
 
@@ -1110,11 +1110,19 @@ function showTeamResult(guesses, distance){
   resultBox.style.display =
     "block";
 
+if(isHost){
+
   document.getElementById(
     "continue-btn"
   ).style.display = "block";
 
-} 
+} else {
+
+  document.getElementById(
+    "continue-btn"
+  ).style.display = "none";
+
+}
 
   /* CACHE BOUTONS */
 
