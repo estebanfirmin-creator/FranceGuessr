@@ -1436,13 +1436,9 @@ function listenPlayers(){
 
 if(!room){
 
-  if(!isHost){
-
-    alert(
-      "L’hôte a quitté la partie\nLa partie a été supprimée"
-    );
-
-  }
+  alert(
+    "Un joueur a quitté la partie\nLa partie a été supprimée"
+  );
 
   location.reload();
 
@@ -1627,35 +1623,10 @@ async function leaveRoom(){
       "rooms/" + currentRoom
     );
 
-  if(isHost){
+  // SUPPRIME DIRECTEMENT LA ROOM
+  // PEU IMPORTE QUI QUITTE
 
-    await roomRef.remove();
-
-  } else {
-
-    await roomRef.child(
-      "players/" + playerName
-    ).remove();
-
-    await roomRef.child(
-      "guesses/" + playerName
-    ).remove();
-
-    const snapshot =
-      await roomRef.child(
-        "players"
-      ).once("value");
-
-    const players =
-      snapshot.val();
-
-    if(!players){
-
-      await roomRef.remove();
-
-    }
-
-  }
+  await roomRef.remove();
 
   multiplayer = false;
 
