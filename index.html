@@ -1570,20 +1570,15 @@ function listenGameStart(){
 
       closeMultiplayerMenu();
 
-   if(!roundEnded){
-
-  startSharedRound(
-    room.location
-  );
-
-}
+      startSharedRound(
+        room.location
+      );
 
     }
 
   });
 
 }
-
 async function startSharedRound(location){
 
   resultBox.style.display = "none";
