@@ -614,6 +614,10 @@ let validatedPlayers = {};
 
 let hasValidated = false;
 
+let currentRound = 1;
+
+const maxRounds = 3;
+
 const mapContainer =
   document.getElementById("map-container");
 
@@ -1112,6 +1116,22 @@ function showTeamResult(guesses, distance){
 
 if(isHost){
 
+  if(currentRound >= maxRounds){
+
+    document.getElementById(
+      "continue-btn"
+    ).innerHTML =
+      "Terminer";
+
+  } else {
+
+    document.getElementById(
+      "continue-btn"
+    ).innerHTML =
+      "Continuer";
+
+  }
+
   document.getElementById(
     "continue-btn"
   ).style.display = "block";
@@ -1282,6 +1302,26 @@ async function nextRound(){
 
   if(isHost){
 
+    // FIN DE PARTIE
+
+    if(currentRound >= maxRounds){
+
+      await db.ref(
+        "rooms/" + currentRoom
+      ).remove();
+
+      alert("Partie terminée");
+
+      location.reload();
+
+      return;
+
+    }
+
+    // ROUND SUIVANT
+
+    currentRound++;
+
     const location =
       await randomLocation();
 
@@ -1291,7 +1331,9 @@ async function nextRound(){
 
       location: location,
 
-      guesses: {}
+      guesses: {},
+
+      round: currentRound
 
     });
 
@@ -1315,18 +1357,20 @@ async function createRoom(){
   multiplayer = true;
 
   await db.ref(
-    "rooms/" + roomCode
-  ).set({
+  "rooms/" + roomCode
+).set({
 
-    host: playerName,
+  host: playerName,
 
-    started:false,
+  started:false,
 
-    players:{
-      [playerName]: true
-    }
+  round:1,
 
-  });
+  players:{
+    [playerName]: true
+  }
+
+});
 
   showLobby();
 
@@ -1511,6 +1555,8 @@ function listenGameStart(){
 
     const room =
       snapshot.val();
+
+    currentRound = room.round || 1;
 
     if(room.started && room.location && !hasValidated){
 
