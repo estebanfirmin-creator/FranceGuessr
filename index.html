@@ -1485,9 +1485,17 @@ function listenPlayers(){
 
 if(!room){
 
-  alert(
-    "Un joueur a quitté la partie\nLa partie a été supprimée"
-  );
+  if(currentRound >= maxRounds){
+
+    alert("Partie terminée");
+
+  } else {
+
+    alert(
+      "Un joueur a quitté la partie\nLa partie a été supprimée"
+    );
+
+  }
 
   location.reload();
 
