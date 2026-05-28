@@ -616,6 +616,8 @@ let hasValidated = false;
 
 let resultShown = false;
 
+let lastLocationKey = null;
+
 let currentRound = 1;
 
 const maxRounds = 3;
@@ -1559,6 +1561,8 @@ function listenGameStart(){
     const room =
       snapshot.val();
 
+    if(!room) return;
+
     currentRound = room.round || 1;
 
     if(room.started && room.location){
@@ -1573,15 +1577,31 @@ function listenGameStart(){
 
       closeMultiplayerMenu();
 
-      startSharedRound(
-        room.location
-      );
+      // CLÉ UNIQUE DE LA POSITION
+
+      const locationKey =
+        room.location.lat +
+        "_" +
+        room.location.lng;
+
+      // UNIQUEMENT SI NOUVEL ENDROIT
+
+      if(locationKey !== lastLocationKey){
+
+        lastLocationKey = locationKey;
+
+        startSharedRound(
+          room.location
+        );
+
+      }
 
     }
 
   });
 
 }
+
 async function startSharedRound(location){
 
   resultBox.style.display = "none";
